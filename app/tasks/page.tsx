@@ -1,109 +1,75 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import useSWR from "swr"
 import { Navbar } from "@/components/navbar"
 import { TaskList } from "@/components/task-list"
 import { AddTaskModal } from "@/components/add-task-modal"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
-import type { Task } from "@/lib/types"
+import type { Task } from "@/lib/api"
+import { apiClient } from "@/lib/api"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 
-const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
-  ? `http://${window.location.hostname}:5000`
-  : 'http://localhost:5000'
-
-const fetcher = async (url: string) => {
-  const res = await fetch(url)
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ${url}: ${res.statusText}`)
-  }
-  return res.json()
-}
-
-export default function TasksPage() {
-  const { data: tasks, error, isLoading, mutate } = useSWR<Task[]>(`${API_BASE_URL}/tasks`, fetcher)
+export default function TasksPage(): JSX.Element {
+  const { data: tasks, error, isLoading, mutate } = useSWR<Task[], { message: string }>(
+    'tasks',
+    () => apiClient.getTasks(),
+    { revalidateOnFocus: false, dedupingInterval: 5000 }
+  )
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
   const handleAddTask = useCallback(
-    async (text: string) => {
+    async (text: string): Promise<void> => {
       try {
-        const res = await fetch(`${API_BASE_URL}/tasks`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text }),
-        })
-
-        if (!res.ok) throw new Error("Failed to add task")
-
+        const newTask = await apiClient.createTask(text)
         await mutate()
         toast.success("Task added successfully")
-      } catch (error) {
-        toast.error("Failed to add task")
+      } catch (error: any) {
+        toast.error(error?.message || "Failed to add task")
       }
     },
     [mutate],
   )
 
   const handleToggleTask = useCallback(
-    async (task: Task) => {
+    async (task: Task): Promise<void> => {
       try {
-        const res = await fetch(`${API_BASE_URL}/tasks/${task.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...task, completed: !task.completed }),
+        const updated = await apiClient.updateTask(task.id, { 
+          ...task, 
+          completed: !task.completed 
         })
-
-        if (!res.ok) throw new Error("Failed to update task")
-
-        const updated = await res.json()
-
-        // Optimistically update SWR cache
         mutate((prev) => (prev ? prev.map((t) => (t.id === updated.id ? updated : t)) : prev), false)
-
         toast.success(updated.completed ? "Task completed" : "Task uncompleted")
-      } catch (error) {
-        toast.error("Failed to update task")
+      } catch (error: any) {
+        toast.error(error?.message || "Failed to update task")
       }
     },
     [mutate],
   )
 
   const handleEditTask = useCallback(
-    async (id: string, text: string) => {
+    async (id: string, text: string): Promise<void> => {
       try {
-        const res = await fetch(`${API_BASE_URL}/tasks/${id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text }),
-        })
-
-        if (!res.ok) throw new Error("Failed to update task")
-
-        await mutate()
+        const updated = await apiClient.updateTask(id, { text })
+        mutate((prev) => (prev ? prev.map((t) => (t.id === updated.id ? updated : t)) : prev), false)
         toast.success("Task updated")
-      } catch (error) {
-        toast.error("Failed to update task")
+      } catch (error: any) {
+        toast.error(error?.message || "Failed to update task")
       }
     },
     [mutate],
   )
 
-  const handleDeleteTask = useCallback(async () => {
+  const handleDeleteTask = useCallback(async (): Promise<void> => {
     if (!deleteId) return
 
     try {
-      const res = await fetch(`${API_BASE_URL}/tasks/${deleteId}`, {
-        method: "DELETE",
-      })
-
-      if (!res.ok) throw new Error("Failed to delete task")
-
+      await apiClient.deleteTask(deleteId)
       await mutate()
       toast.success("Task deleted")
-    } catch (error) {
-      toast.error("Failed to delete task")
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to delete task")
     } finally {
       setDeleteId(null)
     }

@@ -447,10 +447,16 @@ function TaskCard({ task, onToggle, onDelete, onEdit }) {
     _s();
     const [isEditing, setIsEditing] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [editText, setEditText] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(task.text ?? "");
-    const handleSave = ()=>{
+    const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const handleSave = async ()=>{
         if (editText.trim()) {
-            onEdit(task.id, editText.trim());
-            setIsEditing(false);
+            setIsLoading(true);
+            try {
+                await onEdit(task.id, editText.trim());
+                setIsEditing(false);
+            } finally{
+                setIsLoading(false);
+            }
         }
     };
     const handleStartEdit = ()=>{
@@ -461,16 +467,33 @@ function TaskCard({ task, onToggle, onDelete, onEdit }) {
         setEditText(task.text ?? "");
         setIsEditing(false);
     };
+    const handleDelete = async ()=>{
+        setIsLoading(true);
+        try {
+            await onDelete(task.id);
+        } finally{
+            setIsLoading(false);
+        }
+    };
+    const handleToggle = async ()=>{
+        setIsLoading(true);
+        try {
+            await onToggle(task);
+        } finally{
+            setIsLoading(false);
+        }
+    };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("group flex items-center gap-3 p-4 rounded-lg bg-gray-900 transition-all"),
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$checkbox$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Checkbox"], {
                 checked: task.completed,
-                onCheckedChange: ()=>onToggle(task),
+                onCheckedChange: handleToggle,
+                disabled: isLoading,
                 className: "h-5 w-5"
             }, void 0, false, {
                 fileName: "[project]/components/task-card.tsx",
-                lineNumber: 41,
+                lineNumber: 65,
                 columnNumber: 7
             }, this),
             isEditing ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -481,51 +504,58 @@ function TaskCard({ task, onToggle, onDelete, onEdit }) {
                         onChange: (e)=>setEditText(e.target.value),
                         className: "flex-1",
                         autoFocus: true,
+                        disabled: isLoading,
                         onKeyDown: (e)=>{
-                            if (e.key === "Enter") handleSave();
-                            if (e.key === "Escape") handleCancel();
+                            if (e.key === "Enter") {
+                                handleSave().catch(console.error);
+                            }
+                            if (e.key === "Escape") {
+                                handleCancel();
+                            }
                         }
                     }, void 0, false, {
                         fileName: "[project]/components/task-card.tsx",
-                        lineNumber: 49,
+                        lineNumber: 74,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                         size: "icon",
                         variant: "ghost",
-                        onClick: handleSave,
+                        onClick: ()=>handleSave().catch(console.error),
+                        disabled: isLoading,
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
                             className: "h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/components/task-card.tsx",
-                            lineNumber: 60,
+                            lineNumber: 95,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/task-card.tsx",
-                        lineNumber: 59,
+                        lineNumber: 89,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                         size: "icon",
                         variant: "ghost",
                         onClick: handleCancel,
+                        disabled: isLoading,
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
                             className: "h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/components/task-card.tsx",
-                            lineNumber: 63,
+                            lineNumber: 103,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/task-card.tsx",
-                        lineNumber: 62,
+                        lineNumber: 97,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/task-card.tsx",
-                lineNumber: 48,
+                lineNumber: 73,
                 columnNumber: 9
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                 children: [
@@ -536,12 +566,12 @@ function TaskCard({ task, onToggle, onDelete, onEdit }) {
                             children: task.text
                         }, void 0, false, {
                             fileName: "[project]/components/task-card.tsx",
-                            lineNumber: 69,
+                            lineNumber: 109,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/task-card.tsx",
-                        lineNumber: 68,
+                        lineNumber: 108,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -552,39 +582,41 @@ function TaskCard({ task, onToggle, onDelete, onEdit }) {
                                 variant: "ghost",
                                 className: "h-8 w-8",
                                 onClick: handleStartEdit,
+                                disabled: isLoading,
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$pencil$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Pencil$3e$__["Pencil"], {
                                     className: "h-4 w-4"
                                 }, void 0, false, {
                                     fileName: "[project]/components/task-card.tsx",
-                                    lineNumber: 74,
+                                    lineNumber: 120,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/task-card.tsx",
-                                lineNumber: 73,
+                                lineNumber: 113,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                 size: "icon",
                                 variant: "ghost",
                                 className: "h-8 w-8 text-destructive hover:text-destructive",
-                                onClick: ()=>onDelete(task.id),
+                                onClick: handleDelete,
+                                disabled: isLoading,
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
                                     className: "h-4 w-4"
                                 }, void 0, false, {
                                     fileName: "[project]/components/task-card.tsx",
-                                    lineNumber: 82,
+                                    lineNumber: 129,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/task-card.tsx",
-                                lineNumber: 76,
+                                lineNumber: 122,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/task-card.tsx",
-                        lineNumber: 72,
+                        lineNumber: 112,
                         columnNumber: 11
                     }, this)
                 ]
@@ -592,11 +624,11 @@ function TaskCard({ task, onToggle, onDelete, onEdit }) {
         ]
     }, void 0, true, {
         fileName: "[project]/components/task-card.tsx",
-        lineNumber: 40,
+        lineNumber: 64,
         columnNumber: 5
     }, this);
 }
-_s(TaskCard, "PLJ8r9P7P8dsdtTmthpFwX4A6Gk=");
+_s(TaskCard, "saC2JnZdZsVPziilHGumsKXOZPY=");
 _c = TaskCard;
 var _c;
 __turbopack_context__.k.register(_c, "TaskCard");

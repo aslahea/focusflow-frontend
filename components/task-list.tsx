@@ -1,16 +1,16 @@
 "use client"
 
-import type { Task } from "@/lib/types"
+import type { Task } from "@/lib/api"
 import { TaskCard } from "./task-card"
 
 interface TaskListProps {
   tasks: Task[]
-  onToggle: (task: Task) => void
-  onDelete: (id: string) => void
-  onEdit: (id: string, text: string) => void
+  onToggle: (task: Task) => Promise<void>
+  onDelete: (id: string) => Promise<void>
+  onEdit: (id: string, text: string) => Promise<void>
 }
 
-export function TaskList({ tasks, onToggle, onDelete, onEdit }: TaskListProps) {
+export function TaskList({ tasks, onToggle, onDelete, onEdit }: TaskListProps): JSX.Element {
   if (tasks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
