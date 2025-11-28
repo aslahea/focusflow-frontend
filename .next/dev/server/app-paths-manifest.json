@@ -1,0 +1,6 @@
+{
+  "/page": "app/page.js",
+  "/pomodoro/page": "app/pomodoro/page.js",
+  "/settings/page": "app/settings/page.js",
+  "/tasks/page": "app/tasks/page.js"
+}
