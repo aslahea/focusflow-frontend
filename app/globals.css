@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
 /* Fixed dark mode variant selector for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));
